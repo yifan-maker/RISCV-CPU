@@ -42,16 +42,17 @@ endmodule
 module main_control (
     input [6:0] opcode,
     output reg [1:0] ALUOp,
-    output reg RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch
+    output reg RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump
 );
     always @(opcode) begin
         case (opcode)
-            7'b011_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch} = 8'b1010_0000; //R-type
-            7'b001_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch} = 8'b0010_0100; //I-type addi
-            7'b000_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch} = 8'b0011_0110; //I-type lw
-            7'b010_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch} = 8'b0001_1100; //S-type sw, some changes from truth table of book(2'b0000_1100). considering that there are enable and write_enable pins in RAM, enable can be MemRead signal. Thus, enanble(MemRead) must be asserted when mem write. 
-            7'b110_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch} = 8'b0100_0001; //B-type beq
-            default: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch} = 8'b0000_0000;
+            7'b011_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump} = 9'b1_0100_0000; //R-type
+            7'b001_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump} = 9'b0_0100_1000; //I-type addi
+            7'b000_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump} = 9'b0_0110_1100; //I-type lw
+            7'b010_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump} = 9'b0_0011_1000; //S-type sw, some changes from truth table of book(2'b0000_1100). considering that there are enable and write_enable pins in RAM, enable can be MemRead signal. Thus, enanble(MemRead) must be asserted when mem write. 
+            7'b110_0011: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump} = 9'b0_1000_0010; //B-type beq
+            7'b110_1111: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump} = 9'b0_1000_0001; //J-type jal
+            default: {ALUOp, RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump} = 9'b0_0000_0000;
         endcase
     end
     
@@ -60,13 +61,13 @@ endmodule
 module controller(
     input [31:0] instr,
     output [3:0] aluctrl,
-    output RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch
+    output RegWrite, MemRead, MemWrite, ALUSrc, MemtoReg, Branch, Jump
     );
     wire [1:0] op;
     main_control MainControlUnit(
     .opcode (instr [6:0]),
     .ALUOp (op),
-    .RegWrite (RegWrite), .MemRead (MemRead), .MemWrite (MemWrite), .ALUSrc (ALUSrc), .MemtoReg (MemtoReg), .Branch (Branch)
+    .RegWrite (RegWrite), .MemRead (MemRead), .MemWrite (MemWrite), .ALUSrc (ALUSrc), .MemtoReg (MemtoReg), .Branch (Branch), .Jump (Jump)
     );
 
     alu_control  ALUControlUnit(

@@ -21,7 +21,7 @@
 
 module datapath(
     input clk,rst,
-    input RegWrite, ALUSrc, MemtoReg, Branch, MemRead, MemWrite,
+    input RegWrite, ALUSrc, MemtoReg, Branch, Jump, MemRead, MemWrite,
     input [3:0] aluctrl,
     input [31:0] instr, dread_mem,
     output datamem_en, datamem_we,  //in single cycle CPU, the two signals are outputs of controller while are outputs of control register in EX/MEM in pipeline
@@ -60,7 +60,7 @@ module datapath(
     mux2_1 mux2(
     .a(pc_increment4),
     .b(pc_branch),
-    .sel(PCSrc),    //control signal: branch,decide the next pc 
+    .sel(PCSrc || Jump),    //control signal: branch,decide the next pc 
     .out(pc_next)
     );
 
@@ -81,7 +81,7 @@ module datapath(
      .s(pc_increment4)
     );
 
-    assign IF_flush = PCSrc;
+    assign IF_flush = PCSrc || Jump;
     // 2 registers in IF/ID stage
     register IRIF (
     .clk(clk),
@@ -109,8 +109,10 @@ module datapath(
     .we(control_MEM[0]),    //control signal:RegWrite
     .read1(IR_IF [19:15]), 
     .read2(IR_IF [24:20]), 
-    .write(wdst_MEM),
-    .write_data(dwrite_regfile),
+    .write1(wdst_MEM),
+    .write_data1(dwrite_regfile),
+    .write2(IR_IF [11:7]),
+    .write_data2(pc_IF + 1),
     .data_out1(ALUSrca), 
     .data_out2(rs2)
     );

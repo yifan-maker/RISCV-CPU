@@ -29,7 +29,7 @@ module cpu(
 
     assign instrmem_en = 1'b1;  //always enable instruction ram
 
-    wire RegWrite, ALUSrc, MemtoReg, Branch, mem_en, mem_we;
+    wire RegWrite, ALUSrc, MemtoReg, Branch, Jump, mem_en, mem_we;
     wire [3:0] aluctrl;
     wire [31:0] IR;
 
@@ -40,6 +40,7 @@ module cpu(
     .ALUSrc(ALUSrc), 
     .MemtoReg(MemtoReg), 
     .Branch(Branch),
+    .Jump(Jump),
     .MemRead(mem_en), 
     .MemWrite(mem_we),
     .aluctrl(aluctrl),
@@ -61,7 +62,8 @@ module cpu(
     .MemWrite(mem_we),    // write enable in data ram
     .ALUSrc(ALUSrc), 
     .MemtoReg(MemtoReg), 
-    .Branch(Branch)
+    .Branch(Branch),
+    .Jump(Jump)
     );
 
 

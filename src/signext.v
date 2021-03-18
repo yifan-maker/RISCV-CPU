@@ -30,10 +30,13 @@ module signext(input [31:0] instr,
         else if (instr [6:5] == 2'b01) begin
             imm = {{20{instr[31]}}, instr [31:25], instr [11:7]};    //sw
         end
-        else if (instr [6:5] == 2'b11) begin
+        else if (instr [6:2] == 5'b1_1000) begin
             imm = {{20{instr[31]}}, instr [31], instr [7], instr [30:25], instr [11:8]};    //beq
         end
+        else if (instr [6:2] == 5'b1_1011 ) begin
+            imm = {{12{instr[31]}}, instr [31], instr [19:12], instr [20], instr [30:21]};   //jal, U type
+        end
         else
-            imm = 8'b0000_0000;    
+            imm = 32'h0000_0000;    
     end
 endmodule
